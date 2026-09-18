@@ -266,7 +266,7 @@ Future<void> build(
     stderr.writeln(message);
     output.setFailure(.build);
     await _writeOutput(output, outputFile);
-    exit(BuildError(message: message).exitCode);
+    exitFunction(BuildError(message: message).exitCode);
   }
 
   await _writeOutput(output, outputFile);
@@ -493,7 +493,7 @@ Future<void> link(
     stderr.writeln(message);
     output.setFailure(.build);
     await _writeOutput(output, outputFile);
-    exit(BuildError(message: message).exitCode);
+    exitFunction(BuildError(message: message).exitCode);
   }
 
   await _writeOutput(output, outputFile);
@@ -506,6 +506,9 @@ Future<void> _writeOutput(HookOutputBuilder output, Uri outputFile) async {
   await File.fromUri(outputFile).writeAsBytes(jsonOutput);
 }
 
+/// Exit function used by [build] and [link], overridable for testing.
+Never Function(int) exitFunction = exit;
+
 Never _exitViaHookException(HookError exception, StackTrace stackTrace) {
   stderr.writeln(exception.message);
   stderr.writeln(stackTrace);
@@ -514,5 +517,5 @@ Never _exitViaHookException(HookError exception, StackTrace stackTrace) {
     stderr.writeln(exception.wrappedException);
     stderr.writeln(exception.wrappedTrace);
   }
-  exit(exception.exitCode);
+  exitFunction(exception.exitCode);
 }
